@@ -7,7 +7,7 @@ const util = require("./util.js");
 
 
 /* config */
-const version = "v0.0.2";
+const version = "v0.0.3";
 
 
 // enable automatic logging of reads, writes and deletes
