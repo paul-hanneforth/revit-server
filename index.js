@@ -1,7 +1,6 @@
 /* initialize firebase */
 require("./firebase/firebase.js").initializeApp();
 
-
 /* imports */
 const express = require("express");
 const bodyParser = require("body-parser");
