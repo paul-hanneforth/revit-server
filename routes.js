@@ -7,7 +7,7 @@ const util = require("./util.js");
 
 
 /* config */
-const version = "v0.0.2";
+const version = "v0.0.4";
 
 
 // enable automatic logging of reads, writes and deletes
@@ -176,6 +176,14 @@ router.post("/profile/update", async (req, res) => {
     // get profile
     const id = await util.getProfileIdViaUid(decodedToken.uid);
     if(id == null) { res.json(errorMessage.profileCouldntBeFound); return; }
+
+    // check if username is valid, when it is provided
+    const usernameValid = await util.usernameValid(username);
+    if(!usernameValid && username) return res.json(errorMessage.usernameNotValid);
+
+    // check if username is already taken
+    const usernameAlreadyTaken = await util.usernameAlreadyTaken(username);
+    if(usernameAlreadyTaken && username) return res.json(errorMessage.usernameAlreadyTaken);
 
     // update profile
     const cleanedUpdate = Object.entries({ username, name, profileImageURL, headerURL }).reduce((a,[k,v]) => (v ? (a[k]=v, a) : a), {});
