@@ -429,6 +429,25 @@ const usernameAlreadyTaken = async (username) => {
     return true;
 
 }
+const removeProfile = async (profileId) => {
+
+    const profileRef = db.collection("profiles").doc(profileId);
+
+    // get profile
+    const profile = await getProfile(profileId);
+
+    // delete all images that are linked to the profile
+    await Promise.all(
+        profile.images.map(async (imageId) => {
+            await removeImage(imageId);
+        })
+    )
+
+    // delete profile
+    await profileRef.delete();
+    logDelete();
+
+}
 
 // stack
 const createStack = async (images) => {
@@ -710,6 +729,7 @@ module.exports = {
     getAllProfilesSortedByTheirScore,
     usernameAlreadyTaken,
     usernameValid,
+    removeProfile,
     // stack
     createStack,
     getRandomStack,
