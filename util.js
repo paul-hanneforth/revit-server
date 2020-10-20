@@ -256,6 +256,17 @@ const removeImage = async (imageId) => {
 
     const imageRef = db.collection("images").doc(imageId);
 
+    // delete every stack that contains the image
+    const snapshot = await db.collection("stacks").where("images", "array-contains", imageId).get();
+    const stacks = snapshot.docs.map((doc) => doc.data());
+    stacks.forEach(() => logRead());
+    await Promise.all(
+        stacks.map(async (stack) => {
+            await removeStack(stack.id)
+            logDelete();
+        })
+    )
+
     // delete image
     await imageRef.delete();
     logDelete();
@@ -440,6 +451,7 @@ const removeProfile = async (profileId) => {
     await Promise.all(
         profile.images.map(async (imageId) => {
             await removeImage(imageId);
+            logDelete();
         })
     )
 
