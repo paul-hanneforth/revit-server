@@ -196,6 +196,32 @@ router.post("/profile/update", async (req, res) => {
     })
 
 })
+router.post("/profile/remove", async (req, res) => {
+
+    const idToken = req.body.idToken;
+
+    // check if request is complete
+    const formComplete = isComplete({ idToken });
+    if (!formComplete) { res.json(errorMessage.incompleteForm); return; };
+
+    // verify idToken
+    const decodedToken = await auth.verifyIdToken(idToken);
+    if(decodedToken == null) { res.json(errorMessage.failedToVerifyIdToken); return; }
+
+    // get profile
+    const id = await util.getProfileIdViaUid(decodedToken.uid);
+    if(id == null) { res.json(errorMessage.profileCouldntBeFound); return; }
+
+    // remove profile
+    await util.removeProfile(id);
+
+    // send response
+    res.json({
+        error: false,
+        message: "Successfully removed profile!"
+    })
+
+})
 
 router.post("/stack/get", async (req, res) => {
     /* 
@@ -392,8 +418,6 @@ router.post("/image/remove", async (req, res) => {
 
     // delete image
     await util.deleteImage(imageId);
-
-    return res.json(errorMessage.notEnoughPermissionsToDeleteImage);
 
     // send response
     res.json({

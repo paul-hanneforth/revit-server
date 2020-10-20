@@ -256,6 +256,17 @@ const removeImage = async (imageId) => {
 
     const imageRef = db.collection("images").doc(imageId);
 
+    // delete every stack that contains the image
+    const snapshot = await db.collection("stacks").where("images", "array-contains", imageId).get();
+    const stacks = snapshot.docs.map((doc) => doc.data());
+    stacks.forEach(() => logRead());
+    await Promise.all(
+        stacks.map(async (stack) => {
+            await removeStack(stack.id)
+            logDelete();
+        })
+    )
+
     // delete image
     await imageRef.delete();
     logDelete();
@@ -427,6 +438,26 @@ const usernameAlreadyTaken = async (username) => {
     if(snapshot.empty) return false;
     snapshot.docs.forEach(() => logRead());
     return true;
+
+}
+const removeProfile = async (profileId) => {
+
+    const profileRef = db.collection("profiles").doc(profileId);
+
+    // get profile
+    const profile = await getProfile(profileId);
+
+    // delete all images that are linked to the profile
+    await Promise.all(
+        profile.images.map(async (imageId) => {
+            await removeImage(imageId);
+            logDelete();
+        })
+    )
+
+    // delete profile
+    await profileRef.delete();
+    logDelete();
 
 }
 
@@ -710,6 +741,7 @@ module.exports = {
     getAllProfilesSortedByTheirScore,
     usernameAlreadyTaken,
     usernameValid,
+    removeProfile,
     // stack
     createStack,
     getRandomStack,
