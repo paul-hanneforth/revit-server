@@ -21,6 +21,17 @@ const usernameValid = async (username) => {
     }
     return true;
 }
+const getDate = () => {
+    const date = new Date();
+    const datetime = date.getDate() + "/"
+                + (date.getMonth()+1)  + "/" 
+                + date.getFullYear() + " @ "  
+                + date.getHours() + ":"  
+                + date.getMinutes() + ":" 
+                + date.getSeconds();
+
+    return datetime;
+}
 
 const logRead = () => logger.event("read").trigger();
 const logWrite = () => logger.event("write").trigger();
@@ -755,5 +766,7 @@ module.exports = {
     // ranklist
     getRanklist,
 
-    logger
+    logger,
+
+    getDate
 }
