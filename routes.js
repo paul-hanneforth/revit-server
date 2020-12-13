@@ -222,6 +222,32 @@ router.post("/profile/remove", async (req, res) => {
     })
 
 })
+router.post("/profile/lastSeen", async (req, res) => {
+
+    const idToken = req.body.idToken;
+
+    // check if request is complete
+    const formComplete = isComplete({ idToken });
+    if (!formComplete) { res.json(errorMessage.incompleteForm); return; };
+
+    // verify idToken
+    const decodedToken = await auth.verifyIdToken(idToken);
+    if(decodedToken == null) { res.json(errorMessage.failedToVerifyIdToken); return; }
+
+    // get profile
+    const id = await util.getProfileIdViaUid(decodedToken.uid);
+    if(id == null) { res.json(errorMessage.profileCouldntBeFound); return; }
+
+    // update profile's last seen
+    await util.updateProfile(id, { lastSeen: util.getDate() });
+
+    // send response
+    res.json({
+        error: false,
+        message: "Successfully updated profile's last seen!"
+    })
+
+})
 
 router.post("/stack/get", async (req, res) => {
     /* 
